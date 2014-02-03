@@ -1,0 +1,579 @@
+<!DOCUMENT html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Gayy</title>
+<style>
+	.TaskItem {
+		float:left;
+		width:230px;
+	}
+
+	.clear {
+		clear:both;
+	}
+	div {
+		border:1px solid #000;
+	}
+	li {
+		border:1px dashed #fe33ef;
+	}
+	div.body{
+		background-color: #e0e0e0;
+	}
+</style>
+<script type="text/javascript" src="handlebars-v1.3.0.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="underscore-min.js"></script>
+<script type="text/javascript" src="d3.v3.js"></script>
+<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="exportToC.js"></script>
+</head>
+<body>
+<div id="container">
+<input type="text" placeholder="Name" />
+	<div id="TaskContainer">
+		<button id="addTaskButton">Add Task</button>
+		<br>
+		<ul id="TaskList">
+		</ul>
+	</div>
+	<div class="clear"> </div>
+
+	<div id="ExternalsEditor">
+		<h2>GLOBALS</h2>
+		<div>
+			<h3>Interrupts</h3>
+			<input type="text" name="ExternalInterruptName" id="ExternalInterruptName">
+			<button id="addInterruptButton">Add Interrupt</button>
+			<ul id="InterruptList">
+				<li>IRQ_X</li>
+				<li>CLOCK</li>
+			</ul>
+		</div>
+		<div>
+			<h3>Global variables</h3>
+			Type Name Value<br>
+			<input type="text" id="GlobalVariableType" width="8" />
+			<input type="text" id="GlobalVariableName" width="30" />
+			<input type="text" id="GlobalVariableValue" width="20" />
+			<button id="addGlobalVariableButton">Add GlobalVariable</button>
+			<ul id="globalVariableList">
+				<li></li>
+			</ul>
+		</div>
+		<div>
+			<h3>State Machines</h3>
+			StateMachine:
+				<select>
+					<option>App</option>
+				</select>
+			<br>
+
+			<div class="StateMachineEditor">
+			</div>
+		</div>
+	</div>
+</div>
+<pre id="output"></pre>
+<script id="interruptListItem-template" type="text/x-handlebars-template">
+	<li>{{name}}</li>
+</script> 
+
+<script id="tasklistitem-template" type="text/x-handlebars-template">
+	<li class="TaskItem">
+		<h2>{{taskName}}</h2>
+		<button class="addMethodButton">Add Method</button>
+		<ul>
+		{{#each methods}}
+		<li class="Method" >
+			<a href="#" class="hideparentonclick">hide</a>
+			<div class="body" duration="{{duration}}">
+				CalledBy: <input type="text" value="{{caller}}" /><br>
+				<br>
+				Name: <input type="text" value="{{name}}" /><br>
+				StartTime:<input type="text" value="{{startTime}}" /><br>
+				Duration:<input type="text" value="{{duration}}" /><br>
+				EndTime: <input type="text" value="{{endTime}}" /><br>
+				<br>
+				<button class="addFunctionButton">Add Function</button>
+				<ul class="functionsList">
+				{{#each functions}}
+				<li class="Function">
+					<a href="#" class="hideparentonclick">hide</a>
+					<div class="body" duration="{{duration}}">
+						Name: <input type="text" value="{{name}}" /><br>
+						Data: <input type="text" value="{{body}}" /><br>
+						StartTime: <input type="text" value="{{startTime}}" /><br>
+						Duration: <input type="text" value="{{duration}}" /><br>
+						EndTime: <input type="text" value="{{endTime}}" /><br>
+					</div>
+				</li>
+				{{/each}}
+				</ul>
+			</div>
+		</li>
+		{{/each}}
+		</ul>
+	</li>
+</script>
+
+<script id="newFunction-template" type="text/x-handlebars-template">
+	<li class="Function">
+		Name: <input type="text" value="{{name}}" /><br>
+		<a href="#" class="hideparentonclick">hide</a>
+		<div class="body" duration="{{duration}}">
+			Data: <input type="text" value="{{body}}" /><br>
+			StartTime: <input type="text" value="{{startTime}}" /><br>
+			Duration: <input type="text" value="{{duration}}" /><br>
+			EndTime: <input type="text" value="{{endTime}}" /><br>
+		</div>
+	</li>
+</script>
+
+
+<script id="new-template" type="text/x-handlebars-template">
+	<li class="Method" >
+		<a href="#" class="hideparentonclick">hide</a>
+		<div class="body" duration="{{duration}}">
+			CalledBy: <input type="text" value="{{caller}}" /><br>
+			<br>
+			Name: <input type="text" value="{{name}}" /><br>
+			StartTime:<input type="text" value="{{startTime}}" /><br>
+			Duration:<input type="text" value="{{duration}}" /><br>
+			EndTime: <input type="text" value="{{endTime}}" /><br>
+			<br>
+			<button class="addFunctionButton">Add Function</button>
+			<ul class="functionsList"></ul>
+		</div>
+	</li>
+</script>
+
+<script id="newMethodForm-template" type="text/x-handlebars-template">
+	<div id="NewMethodForm">
+		Name <input type="text" name="MethodName" /><br />
+		Temporal Scope:
+		<ul>
+			<li>Minimum Delay <input type="text" name="MinimumDelay" /></li>
+			<li>Maximum Delay <input type="text" name="MaximumDelay" /></li>
+			<li>Deadline <input type="text" name="Deadline" /></li>
+			<li>Maximum Elapsed Time<input type="text" name="Maximum elapsed time" /></li>
+		</ul>
+		Body <br/>
+		<textarea name="MethodBody"></textarea>
+	</div>
+</script>
+<script id="function-template" type="text/x-handlebars-template">
+	<div class="Function">
+		Name: <input type="text" value="{{name}}" /><br>
+		MinDelay: <input type="number" placeholder="StartTime" value="{{startTime}}" /><br>
+		Duration: <input type="number" placeholder="Duration" value="{{duration}}" /><br>
+		End: <input type="number" placeholder="End Time" value="{{endTime}}" /><br>
+
+		<textarea></textarea>
+	</div>
+</script>
+<script id="variableForm-template" type="text/x-handlebars-template">
+	<div class="VariableForm">
+		Type: <input type="text" name="VariableType" value="{{type}}" /><br>
+		Name: <input type="text" name="VariableName" value="{{name}}" /><br>
+		Value: <input type="text" name="VariableValue" value="{{value}}" /><br>
+	</div>
+</script>
+
+<script id="variablelistitem-template" type="text/x-handlebars-template">
+	<li><span class="VariableType">{{type}}</span> <span class="VariableName">{{name}}</span>: <span class="VariableValue">{{value}}</span></li>
+</script>
+
+<script id="includeForm-template" type="text/x-handlebars-template">
+	<div class="includeFormContainer">
+		<h3>Include</h3>
+		<input type="text" placeholder="include header" class="includeHeaderText" value="" />
+		<button class="addIncludeButton">Add Includefile</button>
+		<ul>
+		{{each includes}}
+			<li class="include-list-item">
+				#include <span class="ClickEdit">{{value}}</span>
+				<a href="#" class="remove-list-item">Remove</a>
+			</li>
+		{{/each}}
+		</ul>
+	</div>
+</script>
+
+<script id="interruptForm-template" type="text/x-handlebars-template">
+	<div class="interrupt-container">
+		<h3>Interrupts</h3>
+		<input type="text" placeholder="Interrupt constant" class="interruptConstantText" />
+		<button class="addInterruptButton">Add Interrupt</button>
+		<ul class="interrupt-list">
+		{{each interrupts}}
+			<li class="interrupt-list-item">
+				{{interrupt}}
+				<a href="#" class="clickToHide">v</a> 
+				<div class="hideable">
+					INSTALL(&<span class="ClickEdit">{{object}}</span>, <span class="ClickEdit">{{method}}</span>, <span class="ClickEdit">{{interrupt}}</span>);
+				</div>
+			</li>
+		{{/each}}
+		</ul>
+	</div>
+</script>
+
+<script id="stateMachineForm-template" type="text/x-handlebars-template">
+	<div>
+		<h3>State Machines</h3>
+		<input type="text" placeholder="Name" />
+		<button>Add StateMachine</button>
+		<ul>
+		{{each stateMachines}}
+			<li>
+				typedef struct {
+				<ul class="stateMachine-variable-list">
+				{{each variables}}
+					<li class="variable-list-item">
+						<span class="ClickEdit">{{type}}</span> 
+						<span class="ClickEdit">{{name}}</span> = 
+						<span class="ClickEdit">{{value}}</span>;
+					</li>
+				{{/each}}
+				</ul>
+				} <span class="ClickEdit">{{name}}</span>;
+			</li>
+		{{/each}}
+		</ul>
+	</div>
+</script>
+
+<script id="globalVariableForm-template" type="text/x-handlebars-template">
+	<div>
+		<h3>Global Variables</h3>
+		<input type="text" placeholder="Type" />
+		<input type="text" placeholder="Name" />
+		<input type="text" placeholder="Value" />
+		<button class="addGlobalVariableButton">Add Global Variable</button>
+		<ul class="global-variable-list">
+		{{each variables}}
+			<li class="variable-list-item">
+				<span class="ClickEdit">{{type}}</span> 
+				<span class="ClickEdit">{{name}}</span> = 
+				<span class="ClickEdit">{{value}}</span>;
+			</li>
+		{{/each}}
+		</ul>
+	</div>
+</script>
+
+<script id="methodsForm-template" type="text/x-handlebars-template">
+	<div>
+		<h3>Method</h3>
+		<input type="text" placeholder="Type (eg, void)" />
+		<input type="text" placeholder="Name (eg, receive)" />
+		<input type="text" placeholder="Object (eg, app)" /> 
+		<input type="text" placeholder="Variable (eg, int unused)" />
+		<button class="addMethodButton">Add Method</button>
+		<ul>
+		{{each methods}}
+			<li class="method-list-item">
+				<span class="ClickEdit">{{type}}</span> 
+				<span class="ClickEdit">{{name}}</span> (
+				<span class="ClickEdit">{{object}}</span> *self,
+				<span class="ClickEdit">{{variable}}</span>) {
+				<a href="#" class="remove-list-item">Remove</a><br>
+				<textarea>{{body}}</textarea><br>
+				}
+			</li>
+		{{/each}}
+		</ul>
+	</div>
+</script>
+
+<script id="timeScopeForm-template" type="text/x-handlebars-template">
+	<div>
+		<h4>TimeScope</h4>
+		Minimum Delay: <span class="ClickEdit">{{minDelay}}</span> us.<br>
+		Maximum Delay: <span class="ClickEdit">{{maxDelay}}</span>
+		Deadline: <span class="ClickEdit">{{deadline}}</span>
+		Maximum elapsed time: <span class="ClickEdit">{{maximumElapsedTime}}</span>
+	</div>
+</script>
+
+<script type="text/x-handlebars-template">
+	<div>
+		<h3>KickOff</h3>
+		TINYTIMBER(&<span class="ClickEdit">{{mainobj}}, kickoff, <span class="ClickEdit">{{mainarg}});<br>
+
+		void kickoff(<span class="ClickEdit">{{object}}</span> *self, <span class="ClickEdit">{{variable}}</span>) {<br>
+			<textarea>{{body}}</textarea><br>
+		}<br/>
+</script>
+
+<script id="newStateMachine-template" type="text/x-handlebars-template">
+	<div id="NewStateMachine">
+		Variables
+		<button class="addVariableButton">Add Variable</button>
+		<ul>
+			<li><span class="VariableType">Object*</span> <span class="VariableName">super</span>: <span class="VariableValue">initObject()</span></li>
+			<li><span class="VariableType">int</span> <span class="VariableName">count</span>: <span class="VariableValue">100</span></li>
+			<li><span class="VariableType">int[16]</span> <span class="VariableName">myBuffer</span>: <span class="VariableValue">{}</span></li>
+		</ul>
+		Methods (States)
+		<button>Add Method</button>
+		<ul>
+		{{#each methods}}
+			<li class="method">
+				Name: <input type="text" value="{{name}}" /><br>
+				CalledBy: <input type="text" value="{{caller}}" /><br>
+				StartTime:<input type="text" value="{{timeScope.startTime}}" /><br>
+				Duration:<input type="text" value="{{timeScope.duration}}" /><br>
+				EndTime: <input type="text" value="{{timeScope.endTime}}" /><br>
+				<br>
+			</li>
+		{{/each}}
+		</ul>
+	</div>
+</script>
+
+<script type="text/javascript">
+	
+	/*var application = {
+	   includes: [ 
+	      '"TinyTimber.h"',
+	      '"sciTinyTimber.h"',
+	      '"canTinyTimber.h"',
+	      ̈́̈́'<machine/hcs12/pim.h>'],
+
+	   stateMachines: {
+	      name: 'App',
+	      variables: [
+	         { type: 'Object', name: 'super', 'initObject()'},
+	         { type: 'int', name: 'count', '0'},
+	         { type: 'char', name: 'c', 'X'},
+	      ]
+	   }, 
+
+	   variables: [
+	      { type: 'PPIM', name: 'p', value: '0x240'},
+	      { type: 'int', name: 'index', value: '0'},
+	      { type: 'int', name: 'mySum', value: '0'},
+	      { type: 'char', name: 'input[32]', value: '""'},
+	      { type: 'char', name: 'output[64]', value: '""'},
+	      { type: 'int', name: 'min_index', value: '-10'},
+	      { type: 'int', name: 'max_index', value: '14'},
+	      { type: 'int', name: 'brotherJohn[32]', value: '{ 0,2,4,0,0,2,4,0,4,5,7,4,5,7,7,9,7,5,4,0,7,9,7,5,4,0,0,-5,0,0,-5,0 }'},
+	      { type: 'int', name: 'periods[25]', value: '{ 2024,1911,1803,1702,1607,1516,1431,1351,1275,1203,1136,1072,1012,955,901,851,803,758,715,675,637,601,568,536,506  }'},
+	      { type: 'App', name: 'app', value: '{ initObject(), 0, \'X\'}',
+	      { type: 'Serial', name: 'sci0', value: 'initSerial(SCI_PRO0, &app, reader)'},
+	      { type: 'Can', name: 'can0', value: 'initCan(CAN0BASE, &app, receiver)'},
+	      { type: 'int', name: 'blr', value: '100'},
+	   ], 
+
+	   methods = [
+	      { returntype: 'void', name: 'loadLoop', object: 'App', variable: 'int x', body: 'for(x = 0; x < blr; x++) {}
+	         AFTER(USEC(1300),self, loadLoop,0);', timeScope: {} },
+	      { returntype: 'void', name: 'tone', object: 'App', variable: 'int x', body: 'if (x == 0) { \nx = 1;\np->ptp = 1;\n} else {\nx = 0;p->ptp = 0;\n}\nAFTER(USEC(500), self, tone, x);', timeScope: {} },
+	      { returntype: 'void', name: 'receiver', object: 'App', variable: 'int unused', body: 'CANMsg msg;
+	         CAN_RECEIVE(&can0, &msg);
+	         SCI_WRITE(&sci0, "Can msg received: ");
+	         SCI_WRITE(&sci0, msg.buff);', timeScope: {} },
+	      { returntype: 'void', name: 'reader', object: 'App', variable: 'int unused', body: 'SCI_WRITE(&sci0, "Rcv: \'");
+	         SCI_WRITECHAR(&sci0, c);
+	         SCI_WRITE(&sci0, "\'\n");
+	         parseInt(c);', timeScope: {} },
+	   ],
+
+	   functions: [
+	      { type: 'void', name: 'printPeriod', arguments: 'int key',  timeScope: {}, body: 'int i = 0;
+	      if(key > 5) key = 5;
+	      if(key < -5) key = -5;
+	      for(i;i<32; i++) {
+	         int y = brotherJohn[i] + 10 + key;
+	         sprintf(output, "%d\n", periods[y]);
+	         SCI_WRITE(&sci0, output);
+	      }'},
+	      {type:'void', name:'parseInt', arguments: 'int d', 
+	         timeScope: {}
+	         body: 'input[index] = '\0';
+	         mySum = atoi(input);
+	         blr = mySum;
+	         input[index] = '\n';
+	         SCI_WRITE(&sci0, "The entered number is ");
+	         SCI_WRITE(&sci0, input);
+	         printPeriod(mySum);
+	         index = 0;
+	         return;'}
+	   ],
+
+	   interrupts: [
+	      { object: 'sci0', method: 'sci_interrupt', interrupt: 'SCI_IRQ0' },
+	      { object: 'can0', method: 'can_interrupt', interrupt: 'CAN_IRQ0' },
+	   ],
+	   kickoff: {
+	      object: 'App *self', variable: 'int arg',
+	      mainobj: 'app', mainarg: '0',
+	      body: '
+	         CANMsg msg;
+	         SCI_INIT(&sci0);
+	         CAN_INIT(&can0);
+	         SCI_WRITE(&sci0, "Hello, hello...\n");
+	         msg.msgId = 1;
+	         msg.nodeId = 1;
+	         msg.length = 6;
+	         msg.buff[0] = 'H';
+	         msg.buff[1] = 'e';
+	         msg.buff[2] = 'l';
+	         msg.buff[3] = 'l';
+	         msg.buff[4] = 'o';
+	         msg.buff[5] = 0;
+	         CAN_SEND(&can0, &msg);
+	         p->ddrp = 0x1;
+	         ASYNC(self,tone, 0);
+	         ASYNC(self,loadLoop, 0);
+	      ',
+	   },
+	};*/
+
+	var defaultStateMachine = {
+		name: 'New StateMachine',
+		variables: [
+			{ type: 'Object*', name: 'super', value: 'initObject()' },
+			{ type: 'int', name: 'count', value: '100'},
+			{ type: 'int[16]', name: 'myBuffer', value: '{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}'}
+		],
+		methods: [
+			{
+				name: 'Sample',
+				caller: 'IRQ_X',
+				timeScope: { startTime: '0', duration:'10', endtime: '0'},
+				functions: [
+					{ name: 'sprintf', body: 'sprintf(stuff);', timeScope: { startTime: '0', duration:'1', endtime: '0'}},
+					{ name: 'sprintf', body: 'sprintf(stuff);', timeScope: { startTime: '0', duration:'1', endtime: '0'}}
+				],
+			}, // sample
+			{
+				name: 'Calculation',
+				caller: 'IRQ_Y',
+				timeScope: { startTime: '0', duration:'10', endtime: '0'},
+				functions: [
+					{ name: 'sprintf', body: 'sprintf(stuff);', timeScope: { startTime: '0', duration:'1', endtime: '0'}},
+					{ name: 'sprintf', body: 'sprintf(stuff);', timeScope: { startTime: '0', duration:'1', endtime: '0'}}
+				],
+			}, // calculations
+		]
+	};
+
+	// ADD HANDLEBAR TEMPLATE FUNCTIONS
+	// -----------------------------------------------------
+	function addNewFunction(selector, func) {
+		var source   = $("#function-template").html();
+		var template = Handlebars.compile(source);
+		var context = { 
+			name: func.name, 
+			startTime: func.startTime, 
+			duration: func.duration, 
+			endTime: func.endTime };
+		var html = template(context);
+		$(selector).append(html);
+	}
+
+	function createVariableForm(selector, variable) {
+		var source   = $("#variableForm-template").html();
+		var template = Handlebars.compile(source);
+		var context = {
+			name: variable.name,
+			type: variable.type,
+			value: variable.value,
+		}
+		var html = template(context);
+		$(selector).append(html);
+	}
+
+	function createTask(selector, task) {
+		var source = $('#tasklistitem-template').html();
+		var template = Handlebars.compile(source);
+		var context = {
+			taskName : 'Task A',
+			methods : [
+				{
+					caller: 'Interrupt',
+					caller_interrupt: 'IRQ_X',
+					called_method: 'none',
+					name: 'recieve',
+					startTime: '0',
+					duration: '300',
+					endTime: '500',
+					functions: [
+						{
+							name: 'sprintf',
+							body: 'sprintf(buffer, "Test %d", mySum);',
+							startTime: '0',
+							duration: '1',
+							endTime: '0'
+						},
+						{
+							name: 'writeSumToScreen',
+							body: 'SCI_WRITE(buffer);',
+							startTime: '0',
+							duration: '1',
+							endforeach: '0',
+						}
+					]}]};
+		var html = template(context);
+		$(selector).append(html);
+	}
+	function enableHideButtons() {
+		$('a.hideparentonclick').on('click', function() {
+			$(this).parent().children('.body').toggle();
+			if($(this).text() === "hide") {
+				$(this).text("show");
+			} else {
+				$(this).text("hide");
+			}
+			return false;
+		});
+	}
+
+	function addMethod(selector, method) {
+		var source = $('#newMethod-template').html();
+		var template = Handlebars.compile(source);
+		var context = {
+			name: method.name,
+			duration: method.duration,
+			startTime: method.startTime,
+			endTime: method.endTime,
+		};
+		var html = template(context);
+		$(selector).append(html);
+	}
+
+	function addInterrupt() {
+		var source = $('interruptListItem-template').html();
+		var template = Handlebars.complile(source);
+		var interruptName = $('#ExternalInterruptName').text();
+		var context = { name: interruptName };
+		var html = template(context);
+		$('#InterruptList').append(html)
+		return false;
+	};
+	// -------------------------------------------------------------- 
+	// MAIN
+	$(document).ready(function() {
+		$('#addInterruptButton').click(addInterrupt);
+		
+		enableHideButtons();
+		$("#addTaskButton").click(function() {
+			createTask('#TaskList', {});
+			enableHideButtons();
+			d3.selectAll("li.method")
+	    	.data([300,100,400])
+	    	.style("height", function(d) { return d + "px"; });
+		});
+		
+	});
+
+	
+
+	
+</script>
+</body>
+</html>
