@@ -4,8 +4,26 @@ So this is basically a small design document and proposal or something. :)
 
 It's a HTML5, js, CSS, SVG, WebApp for generating TinyTimber compilable C-code (for my own use on HC12 for our labs, but any TinyTimber application is supposed to be possible).
 
-js libraries: jQuery.js, underscore.js, jQuery.poshytip.js, jsjoint.js
+js libraries: jQuery.js, underscore.js, jQuery.poshytip.js, jsjoint.js, jQuery-editable.js
 templating: handlebars
+
+Im in the search for some syntax prettifier.
+
+ScriptEditor todo:
+	* Generate test file for WCET.
+	* Load Generated application.c
+	* Design
+	* Structure it better (paper plans)
+
+Flow Editor todo: 
+	* Implement new node structure
+	* Load data structure
+	* Auto-add links
+	* Auto-positioning
+
+Planning: Timeline generation.
+Todo:
+	* Everything. Hardly even started but I have the structure and design on paper. :)
 
 Would like to use: D3.js, Tangle.js or something else for visualization and Reactive Documents. (So me and my partner can write our report and have cool reactive support and explanations. would be pretty sweet.)
 
