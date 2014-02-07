@@ -1,0 +1,328 @@
+
+
+<head>
+<link rel="stylesheet" type="text/css" href="joint.css">
+<script type="text/javascript" src="joint.js"></script>
+<script type="text/javascript" src="joint.shapes.devs.js"></script>
+</head>
+<body>
+<button>Add String</button>
+<button>Add Method</button>
+<button>Add IRQ</button>
+<button>Add Event</button>
+<button>Add Alarm</button>
+<button>Add Set Alarm</button>
+<button>Add Deadline Start</button>
+<button>Add Deadline End</button>
+
+<div id="paper"></div>
+<script>
+
+(function() {
+
+var graph = new joint.dia.Graph;
+var paper = new joint.dia.Paper({ el: $('#paper'), width: 2000, height: 1000, gridSize: 1, model: graph });
+
+var receiverMethod = new joint.shapes.devs.Model({
+    position: { x: 50, y: 50 },
+    size: { width: 90, height: 90 },
+    inPorts: ['in1','in2'],
+    outPorts: ['out'],
+    attrs: {
+        '.label': { text: 'receiver', 'ref-x': .4, 'ref-y': .2 },
+        rect: { fill: '#2ECC71' },
+        '.inPorts circle': { fill: '#16A085' },
+        '.outPorts circle': { fill: '#E74C3C' }
+    }
+});
+
+var compareMethod = new joint.shapes.devs.Model({
+	position: { x: 50, y: 180 },
+	size: { width: 90, height: 90 },
+	inPorts: ['a', 'b', 'func'],
+	outPorts: ['result'],
+	attrs: {
+		'.label': {text: 'compare', 'ref-x': .4, 'ref-y': .2},
+		rect: { fill: '#2ECC71'},
+		'.inPorts circle': {fill: '#16A085'},
+		'.outPorts circle': {fill: '#E74C3C'}
+	}
+});
+
+var delayMethod = new joint.shapes.devs.Model({
+	position: { x:50, y: 290 },
+	size: { width: 90, height: 90 },
+	inPorts: [ 'minDelay', 'maxDelay' ],
+	outPorts: [ 'method', 'onLateTiming' ],
+	attrs: {
+		'.label': { text: 'DELAY', 'ref-x': .5, 'ref-y': .2},
+		rect: { fill: '#2ECC71'},
+		'.inPorts circle': {fill: '#16A085'},
+		'.outPorts circle': {fill: '#E74C3C'}
+	}
+});
+
+var stringModule = function(val) {
+	return new joint.shapes.devs.Model( {
+		position: { x:120, y: 50 },
+		size: { width: 120, height: 40 },
+		outPorts: ['value'],
+		attrs: {
+			'.label': {text: val , 'ref-x': .4, 'ref-y': .2},
+			rect: { fill: '#2ECC71'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'}
+		},
+		value: val
+	});
+}
+
+var variableModule = new joint.shapes.devs.Model({
+	position: { x:50, y: 180 },
+	size: { width: 90, height: 90 },
+	inPorts: ['type', 'name', 'value'],
+	outPorts: ['value'],
+	attrs: {
+		'.label': {text: 'variable', 'ref-x': .4, 'ref-y': .2},
+		rect: { fill: '#2ECC71'},
+		'.inPorts circle': {fill: '#16A085'},
+		'.outPorts circle': {fill: '#E74C3C'}
+	}
+}); 
+
+var interruptModule = function(interrupt) {
+	return new joint.shapes.devs.Model({
+		position: { x:50, y: 300 },
+		size: { width: 120, height: 40 },
+		outPorts: ['int output'],
+		attrs: {
+			'.label': {text: 'INTERRUPT: \n' + interrupt, 'ref-x': .1, 'ref-y': .2},
+			rect: { fill: '#D14141', stroke: '#000000'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'}
+		}	
+	});
+}
+
+var mainModule = new joint.shapes.devs.Model({
+	position: { x:50, y: 180 },
+	size: { width: 90, height: 90 },
+	outPorts: ['START'],
+	attrs: {
+		'.label': {text: 'MAIN', 'ref-x': .5, 'ref-y': .2},
+		rect: { fill: '#2ECC71'},
+		'.inPorts circle': {fill: '#16A085'},
+		'.outPorts circle': {fill: '#E74C3C'}
+	}	
+});
+
+function methodToModule(method) {
+	/*var methoModuleData = {
+		position: { },
+		size: {},
+		outPorts: {},
+		inPorts: {},
+	}*/
+	//type, name, object, variable, body
+}
+var methodModule = function(name) {
+	return new joint.shapes.devs.Model({
+		position: { x: 100,  y:100},
+		size: { width: 100, height: 70 },
+		inPorts: ['variable'],
+		outPorts: ['result'],
+		variablePorts: ['object', 'methodname'],
+		attrs: {
+			'.label': { text: 'Method: \n' + name, 'ref-x': .5, 'ref-y': .3 },
+			rect: { fill: '#C4D1B0', stroke: '#333322'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'},
+			'.variablePorts circle': {fill: '#E74C3C'},
+		}
+	});
+}
+
+var alarmModule = function(name) {
+	return new joint.shapes.devs.Model({
+		position: { x: 100,  y:100},
+		size: { width: 100, height: 60 },
+		inPorts: ['int unused'],
+		outPorts: ['int value'],
+		variablePorts: ['wait until', 'object', 'arg'],
+		attrs: {
+			'.label': { text: 'AFTER: \n' + name, 'ref-x': .4, 'ref-y': .2 },
+			rect: { fill: '#3ECC71', stroke: '#333322'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'},
+			'.variablePorts circle': {fill: '#E74C3C'},
+			'.variablePorts text': { 'ref-x': 25, 'ref-y':-15, 'font-size': 14 }
+		}
+	});
+}
+
+var eventModule = function(name) {
+	return new joint.shapes.devs.Model({
+		position: { x: 70,  y:0},
+		size: { width: 100, height: 50 },
+		variablePorts: ['Interrupt'],
+		outPorts: ['Interrupt Argument'],
+		attrs: {
+			'.label': { text: 'Interrupt: \n' + name, 'ref-x': .1, 'ref-y': .2 },
+			rect: { fill: '#D1B0B0', stroke: '#333322'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'},
+			'.variablePorts text': { 'ref-x': -20, 'ref-y': -15, 'font-size': 14}
+		}
+	})
+}
+
+var testModule = function(name) {
+	return new joint.shapes.devs.Model({
+		position: {x: 0, y: 0},
+		size: { width: 100, height: 100 },
+		inPorts: ['in'],
+		outPorts: ['out'],
+		variablePorts: ['type','name','value'],
+		attrs: {
+			'.label': { text: 'Event: \n' + name, 'ref-x': .4, 'ref-y': .2 },
+			rect: { fill: '#3ECC71', stroke: '#eeeeee'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'},
+			'.variablePorts circle': {fill: '#dddddd'}
+		}	
+	})
+}
+
+var delayModule = function() {
+	return new joint.shapes.devs.Model({
+		position: { x: 100, y: 100},
+		size: { width: 100, height: 100 },
+		inPorts: ['in', 'delay'],
+		outPorts: ['out'],
+		attrs: {
+			'.label': { text: 'Delay', 'ref-x': .4, 'ref-y': .2 },
+			rect: { fill: '#3ECC71', stroke: '#eeeeee'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'}
+		}
+	});
+}
+
+var deadlineStartModule = function() {
+	return new joint.shapes.devs.Model({
+		position: { x: 100, y: 100 },
+		size: { width: 100, height: 100 },
+		inPorts: [ 'in', 'deadline'],
+		outPorts: [ 'out', 'startTime'],
+		attrs: {
+			'.label': { text: 'Event', 'ref-x': .4, 'ref-y': .2 },
+			rect: { fill: '#3ECC71', stroke: '#eeeeee'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'}
+		}
+	});
+}
+var deadlineEndModule = function() {
+	return new joint.shapes.devs.Model({
+		position: { x: 100, y: 100 },
+		size: { width: 100, height: 100 },
+		inPorts: [ 'in', 'endTime', 'startTime', 'deadline' ],
+		outPorts: [ 'out', 'onSuccess', 'onFailure'],
+		attrs: {
+			'.label': { text: 'Event', 'ref-x': .4, 'ref-y': .2 },
+			rect: { fill: '#3ECC71', stroke: '#eeeeee'},
+			'.inPorts circle': {fill: '#16A085'},
+			'.outPorts circle': {fill: '#E74C3C'}
+		}
+	});
+}
+
+mainModule.translate(0,0);
+graph.addCell(mainModule);
+
+var canIrq0 = interruptModule('CAN_IRQ0');
+var sciIrq0 = interruptModule('SCI_IRQ0');
+canIrq0.translate(150,70); // CAN_IRQ0
+sciIrq0.translate(150,200); // SCI_IRQ0
+graph.addCell(canIrq0).addCell(sciIrq0);
+
+var m_can_interrupt = methodModule('can_interrupt');
+var m_sci_interrupt = methodModule('sci_interrupt');
+var m_receive = methodModule('receive');
+var m_reader = methodModule('reader');
+var m_tone = methodModule('tone');
+var m_loopload = methodModule('loopload');
+var m_kickoff = methodModule('kickoff');
+
+m_can_interrupt.translate(350,200); // &can0, can_interrupt
+m_sci_interrupt.translate(350,350); // &sci0, sci_interrupt
+m_receive.translate(600, 200); // &app, receieve
+m_reader.translate(600, 350); // &app, reader
+m_kickoff.translate(150, -50); // &app, kickoff
+m_tone.translate(350, -60); // &app, tone
+m_loopload.translate(350, 20); // &app, loopLoad
+
+graph.addCell(m_can_interrupt)
+	.addCell(m_sci_interrupt)
+	.addCell(m_receive)
+	.addCell(m_reader)
+	.addCell(m_tone)
+	.addCell(m_loopload)
+
+var m_setToneAlarm = alarmModule('tone');
+var m_setLoopLoadAlarm = alarmModule('loopLoad');
+
+m_setToneAlarm.translate(600, -60); // 500, app, tone, 
+m_setLoopLoadAlarm.translate(600, 20); // 1300, app, loopLoad
+
+graph.addCell(m_setToneAlarm)
+	.addCell(m_setLoopLoadAlarm)
+	.addCell(m_kickoff);
+
+var m_intString = stringModule('int');
+var m_voidString = stringModule('void');
+var m_usec500String = stringModule('USEC(500)');
+var m_usec1300String = stringModule('USEC(1300)');
+var m_sci0String = stringModule('sci0');
+var m_can0String = stringModule('can0');
+var m_appString = stringModule('app');
+var m_toneString = stringModule('tone');
+var m_zeroString = stringModule('0');
+var m_loadLoopString = stringModule('loadLoop');
+var m_selfString = stringModule('self');
+
+graph.addCell(m_intString)
+	.addCell(m_voidString)
+	.addCell(m_usec500String)
+	.addCell(m_usec1300String)
+	.addCell(m_sci0String)
+	.addCell(m_can0String)
+	.addCell(m_appString)
+	.addCell(m_toneString)
+	.addCell(m_zeroString)
+	.addCell(m_loadLoopString)
+	.addCell(m_selfString);
+
+graph.on('change:source change:target', function(link) {
+    var sourcePort = link.get('source').port;
+    var sourceId = link.get('source').id;
+    var targetPort = link.get('target').port;
+    var targetId = link.get('target').id;
+
+    var m = [
+        'The port <b>' + sourcePort,
+        '</b> of element with ID <b>' + sourceId,
+        '</b> is connected to port <b>' + targetPort,
+        '</b> of elemnt with ID <b>' + targetId + '</b>'
+    ].join('');
+    
+    out(m);
+});
+
+function out(m) {
+    $('#paper-link-out').html(m);
+}
+
+}())
+
+</script>

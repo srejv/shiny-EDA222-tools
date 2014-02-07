@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TIMELINE TEST</title>
+<style>
+.MethodContainer {
+	position:absolute;
+	display:inline-block;
+	width: 100px;
+	height: 100px;
+	border:1px solid #000;
+	overflow: auto;
+}
+</style>
+</head>
+<body>
+Granularity of HC12 TinyTimber: 0.65 microseconds. (soo... make everything as close to a multiple of 0.65 microseconds as possible. guhghgh)
+This tool could also be used for optimizing timing. I think that should be it's purpose. 
+<div id="timeline">
+	<div class="MethodContainer" id="method0" parent="main"
+		style="left:10px;top:50px;width:150px;">
+		<h4>Kickoff</h4>
+		Called by: main<br>
+		Baseline: 0<br>
+		Object: app<br>
+		<div class="TimeScope">
+			<a class="ClickEdit minDelay">0</a>
+			<a class="ClickEdit maxDelay">0</a>
+			<a class="ClickEdit duration">105</a>
+			<a class="ClickEdit maximumElapsedTime">0</a>
+		</div>
+		<ul class="sync-calls">
+			<li>sci_init, &amp;sci0, 0</li>
+			<li>can_init, &amp;can0, 0</li>
+			<li>sci_write, &amp;sci0, "Hello, hello...\n"</li>
+			<li>can_send, &amp;can0, &amp;msg</li>
+		</ul>
+		<ul class="outgoing-events">
+			<li target="method1">ASYNC, self, tone, 0</li>
+			<li target="method2">ASYNC, self, loadLoop, 0</li>
+		</ul>
+	</div>
+	<div class="MethodContainer" id="method1" parent="method0"
+		style="left:160px;top:50px;width:50px;">
+		<h4>tone</h4>
+		Called by: Kickoff<br>
+		Baseline: 0<br>
+		Object: app<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">105</a>
+			<a class="ClickEdit maxDelay">505</a>
+			<a class="ClickEdit duration">20</a>
+			<a class="ClickEdit maximumElapsedTime">0</a>
+		</div>
+		<ul class="sync-calls-list">
+			<li >
+				Only assignments, then after.
+			</li>
+		</ul>
+		<ul class="outgoing-events">
+			<li target="method1">
+				AFTER, USEC(500), self, tone, x
+			</li>
+		</ul>
+	</div>
+	<div class="MethodContainer" id="method2" parent="method0"
+		style="left:210px;top:50px;width:120px;">
+		<h4>loadLoop</h4>
+		Called by: Kickoff<br>
+		Baseline: FromCall<br>
+		Object: app<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">105</a>
+			<a class="ClickEdit maxDelay">125</a>
+			<a class="ClickEdit duration">400</a>
+			<a class="ClickEdit maximumElapsedTime">0</a>
+		</div>
+		<ul class="outgoing-events">
+			<li target="method7">AFTER, USEC(1300), self, loadLoop, 0</li>
+		</ul>
+	</div>
+
+	<div class="MethodContainer" id="method3" parent="main"
+		style="left:100px;top:180px;width:120px;">
+		<h4>sci_interrupt</h4>
+		Called by: SCI_IRQ0<br>
+		BaseLine: AtInterrupt<br>
+		Object: can0<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">Offset</a>
+			<a class="ClickEdit maxDelay">MaxDelay</a>
+			<a class="ClickEdit duration">Duration</a>
+			<a class="ClickEdit maximumElapsedTime">MaximumElapsedTime</a>
+		</div>
+		<ul class="outgoing-events">
+			<li target="method6">ASYNC, self->obj, self-method, self->port->scidr1</li>
+		</ul>
+	</div>
+
+	<div class="MethodContainer" id="method4" parent="main"
+		style="left:100px;top:320px;width:120px;">
+		<h4>can_interrupt</h4>
+		Called by: CAN_IRQ0<br>
+		BaseLine: AtInterrupt<br>
+		Object: can0<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">Offset</a>
+			<a class="ClickEdit maxDelay">MaxDelay</a>
+			<a class="ClickEdit duration">Duration</a>
+			<a class="ClickEdit maximumElapsedTime">MaximumElapsedTime</a>
+		</div>
+		<ul class="sync-calls">
+		</ul>
+		<ul class="outgoing-events">
+			<li target="method5">ASYNC, self->obj, self->meth, (self->iBuff[self->head].msgId<<4) + self->iBuff[self->head].nodeId</li>
+		</ul>
+	</div>
+
+	<div class="MethodContainer" id="method5" parent="method4"
+		style="left:220px;top:320px;width:120px;">
+		<h4>receiever</h4>
+		Called by: CAN_IRQ0<br>
+		BaseLine: AtInterrupt<br>
+		Object: App<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">Offset</a>
+			<a class="ClickEdit maxDelay">MaxDelay</a>
+			<a class="ClickEdit duration">Duration</a>
+			<a class="ClickEdit maximumElapsedTime">MaximumElapsedTime</a>
+		</div>
+		<ul class="sync-call-list">
+			<li class="sync-call-list-item">
+				can_receive, can0, &amp;msg
+			</li>
+			<li class="sync-call-list-item">
+				sci_write, sci0, "Can msg received: "
+			</li>
+			<li class="sync-call-list-item">
+				sci_write, sci0, msg.buff
+			</li>
+		</ul>
+	</div>
+
+	<div class="MethodContainer" id="method6" parent="method3"
+		style="left:220px;top:180px;width:120px;">
+		<h4>reader</h4>
+		Called by: sci_interrupt<br>
+		BaseLine: AtInterrupt<br>
+		Object: App<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">Offset</a>
+			<a class="ClickEdit maxDelay">MaxDelay</a>
+			<a class="ClickEdit duration">Duration</a>
+			<a class="ClickEdit maximumElapsedTime">MaximumElapsedTime</a>
+		</div>
+		<ul class="sync-call-list">
+			<li class="sync-call-list-item">
+				sci_write, sci0, "Rcv: \'"
+			</li>
+			<li class="sync-call-list-item">
+				sci_writechar, sci0, c
+			</li>
+			<li class="sync-call-list-item">
+				sci_write, sci0, "\'\n"
+			</li>
+		</ul>
+	</div>
+
+
+	<div class="MethodContainer" id="method7" parent="method2"
+		style="left:1510px;top:50px;width:120px;">
+		<h4>loadLoop</h4>
+		Called by: loadLoop<br>
+		Baseline: 1300<br>
+		Object: app<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">0</a>
+			<a class="ClickEdit maxDelay">0</a>
+			<a class="ClickEdit duration">500</a>
+			<a class="ClickEdit maximumElapsedTime">0</a>
+		</div>
+		<ul class="outgoing-events">
+			<li target="method9">AFTER, USEC(1300), self, loadLoop, 0</li>
+		</ul>
+	</div>
+
+	<div class="MethodContainer" id="method8" parent="method1"
+		style="left:500px;top:50px;width:50px;">
+		<h4>tone</h4>
+		Called by: tone<br>
+		Baseline: 500<br>
+		Object: app<br>
+		<div class="TimeScope">
+			Offset by Baseline
+			<a class="ClickEdit minDelay">0</a>
+			<a class="ClickEdit maxDelay">0</a>
+			<a class="ClickEdit duration">20</a>
+			<a class="ClickEdit maximumElapsedTime">0</a>
+		</div>
+		<ul class="sync-calls-list">
+			<li >
+				Only assignments, then after.
+			</li>
+		</ul>
+		<ul class="outgoing-events">
+			<li target="method10">
+				AFTER, USEC(500), self, tone, x
+			</li>
+		</ul>
+	</div>
+
+
+</div>
+<!--
+<script id="method-template" type="text/x-handlebars-template"></script>
+	<div class="MethodContainer">
+		<h4>{{name}}</h4>
+		<div class="TimeScope">
+			MinDelay: <a class="ClickEdit minDelay">MinDelay</a>
+			MaxDelay: <a class="ClickEdit maxDelay">MaxDelay</a>
+			Duration: <a class="ClickEdit duration">Duration</a>
+			MaximumElapsedTime: <a class="ClickEdit maximumElapsedTime">MaximumElapsedTime</a>
+		</div>
+	</div>
+-->
+<script>
+</script>
+</body>
+</html>

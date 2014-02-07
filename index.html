@@ -1,37 +1,41 @@
 <!DOCUMENT html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Gayy</title>
-<style>
-	.TaskItem {
-		float:left;
-		width:230px;
-	}
+	<meta charset="utf-8">
+	<title>RT-tool</title>
+	<style>
+		.TaskItem {
+			float:left;
+			width:230px;
+		}
 
-	.clear {
-		clear:both;
-	}
-	div {
-		border:1px solid #000;
-	}
-	li {
-		border:1px dashed #fe33ef;
-	}
-	div.body{
-		background-color: #e0e0e0;
-	}
-</style>
-<script type="text/javascript" src="handlebars-v1.3.0.js"></script>
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="underscore-min.js"></script>
-<script type="text/javascript" src="d3.v3.js"></script>
-<script type="text/javascript" src="script.js"></script>
-<script type="text/javascript" src="exportToC.js"></script>
+		.clear {
+			clear:both;
+		}
+		div {
+			border:1px solid #000;
+		}
+		li {
+			border:1px dashed #fe33ef;
+		}
+		div.body{
+			background-color: #e0e0e0;
+		}
+	</style>
+	<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="handlebars-v1.3.0.js"></script>
+	<script type="text/javascript" src="underscore-min.js"></script>
+	<script type="text/javascript" src="poshytip-master/src/jquery.poshytip.min.js"></script>
+	<link href="poshytip-master/src/tip-yellowsimple/tip-yellowsimple.css" />
+	<link href="jquery-editable/css/jquery-editable.css" rel="stylesheet"/>
+	<script type="text/javascript" src="jquery-editable/jquery-ui-datepicker/js/jquery-ui-1.10.3.custom.min.js"></script>
+	<script type="text/javascript" src="jquery-editable/js/jquery-editable-poshytip.js"></script>
+	<script type="text/javascript" src="exportToC.js"></script>
+	<script type="text/javascript" src="script.js"></script>
 </head>
 <body>
 <div id="container">
-<input type="text" placeholder="Name" />
+	<input type="text" placeholder="Name" />
 	<div id="TaskContainer">
 		<button id="addTaskButton">Add Task</button>
 		<br>
@@ -42,7 +46,7 @@
 
 	<div id="ExternalsEditor">
 		<h2>GLOBALS</h2>
-		<div>
+		<!--<div>
 			<h3>Interrupts</h3>
 			<input type="text" name="ExternalInterruptName" id="ExternalInterruptName">
 			<button id="addInterruptButton">Add Interrupt</button>
@@ -72,192 +76,171 @@
 
 			<div class="StateMachineEditor">
 			</div>
+		</div>-->
+		<div id="forms">
 		</div>
 	</div>
 </div>
 <pre id="output"></pre>
+
 <script id="interruptListItem-template" type="text/x-handlebars-template">
-	<li>{{name}}</li>
+	<li>
+		{{name}}
+	</li>	
 </script> 
 
-<script id="tasklistitem-template" type="text/x-handlebars-template">
-	<li class="TaskItem">
-		<h2>{{taskName}}</h2>
-		<button class="addMethodButton">Add Method</button>
-		<ul>
-		{{#each methods}}
-		<li class="Method" >
-			<a href="#" class="hideparentonclick">hide</a>
-			<div class="body" duration="{{duration}}">
-				CalledBy: <input type="text" value="{{caller}}" /><br>
-				<br>
-				Name: <input type="text" value="{{name}}" /><br>
-				StartTime:<input type="text" value="{{startTime}}" /><br>
-				Duration:<input type="text" value="{{duration}}" /><br>
-				EndTime: <input type="text" value="{{endTime}}" /><br>
-				<br>
-				<button class="addFunctionButton">Add Function</button>
-				<ul class="functionsList">
-				{{#each functions}}
-				<li class="Function">
-					<a href="#" class="hideparentonclick">hide</a>
-					<div class="body" duration="{{duration}}">
-						Name: <input type="text" value="{{name}}" /><br>
-						Data: <input type="text" value="{{body}}" /><br>
-						StartTime: <input type="text" value="{{startTime}}" /><br>
-						Duration: <input type="text" value="{{duration}}" /><br>
-						EndTime: <input type="text" value="{{endTime}}" /><br>
-					</div>
-				</li>
-				{{/each}}
-				</ul>
-			</div>
-		</li>
-		{{/each}}
-		</ul>
-	</li>
-</script>
-
-<script id="newFunction-template" type="text/x-handlebars-template">
-	<li class="Function">
-		Name: <input type="text" value="{{name}}" /><br>
-		<a href="#" class="hideparentonclick">hide</a>
-		<div class="body" duration="{{duration}}">
-			Data: <input type="text" value="{{body}}" /><br>
-			StartTime: <input type="text" value="{{startTime}}" /><br>
-			Duration: <input type="text" value="{{duration}}" /><br>
-			EndTime: <input type="text" value="{{endTime}}" /><br>
-		</div>
-	</li>
-</script>
-
-
-<script id="new-template" type="text/x-handlebars-template">
-	<li class="Method" >
-		<a href="#" class="hideparentonclick">hide</a>
-		<div class="body" duration="{{duration}}">
-			CalledBy: <input type="text" value="{{caller}}" /><br>
-			<br>
-			Name: <input type="text" value="{{name}}" /><br>
-			StartTime:<input type="text" value="{{startTime}}" /><br>
-			Duration:<input type="text" value="{{duration}}" /><br>
-			EndTime: <input type="text" value="{{endTime}}" /><br>
-			<br>
-			<button class="addFunctionButton">Add Function</button>
-			<ul class="functionsList"></ul>
-		</div>
-	</li>
-</script>
-
-<script id="newMethodForm-template" type="text/x-handlebars-template">
-	<div id="NewMethodForm">
-		Name <input type="text" name="MethodName" /><br />
-		Temporal Scope:
-		<ul>
-			<li>Minimum Delay <input type="text" name="MinimumDelay" /></li>
-			<li>Maximum Delay <input type="text" name="MaximumDelay" /></li>
-			<li>Deadline <input type="text" name="Deadline" /></li>
-			<li>Maximum Elapsed Time<input type="text" name="Maximum elapsed time" /></li>
-		</ul>
-		Body <br/>
-		<textarea name="MethodBody"></textarea>
-	</div>
-</script>
 <script id="function-template" type="text/x-handlebars-template">
-	<div class="Function">
-		Name: <input type="text" value="{{name}}" /><br>
-		MinDelay: <input type="number" placeholder="StartTime" value="{{startTime}}" /><br>
-		Duration: <input type="number" placeholder="Duration" value="{{duration}}" /><br>
-		End: <input type="number" placeholder="End Time" value="{{endTime}}" /><br>
-
-		<textarea></textarea>
+	<div class="FunctionForm">
+		<h3>Function</h3>
+		<input class="functionType" placeholder="Type (eg. void)" />
+		<input class="functionName" placeholder="Name (eg. sum)" />
+		<input class="functionArgs" placeholder="Comma separated argument list" />
+		<button class="addFunctionButton">Add Function</button>
+		<ul class="function-list">
+		{{#each functions}}
+			<li class="function-list-item">
+				<a class="ClickEdit functionType">{{type}}</a> <a class="ClickEdit functionName">{{name}}</a>(<a class="ClickEdit functionArgs">{{args}}</a>) {<br>
+					<a class="ClickEdit functionBody codeArea" data-type="textarea">{{body}}</a><br>
+				}<br>
+				TIMESCOPE
+			</li>
+		{{/each}}
 	</div>
 </script>
+<script id="function-list-item-template" type="text/x-handlebars-template">
+<li class="function-list-item">
+	<a class="ClickEdit functionType">{{type}}</a> <a class="ClickEdit functionName">{{name}}</a>(<a class="ClickEdit functionArgs">{{args}}</a>) {<br>
+		<a class="ClickEdit functionBody codeArea" data-type="textarea">{{body}}</a><br>
+	}<br>
+	TIMESCOPE
+</li>
+</script>
+
+
 <script id="variableForm-template" type="text/x-handlebars-template">
 	<div class="VariableForm">
-		Type: <input type="text" name="VariableType" value="{{type}}" /><br>
-		Name: <input type="text" name="VariableName" value="{{name}}" /><br>
-		Value: <input type="text" name="VariableValue" value="{{value}}" /><br>
+		<h3>Variables</h3>
+		<input type="text" class="VariableType" placeholder="Type" /> 
+				<input type="text" class="VariableName" placeholder="Name" /> 
+				<input type="text" class="VariableValue" placeholder="Value" /> 
+				<button class="addVariableButton">Add Variable</button>
+		<ul class="variable-list">
+		</ul>
 	</div>
 </script>
-
-<script id="variablelistitem-template" type="text/x-handlebars-template">
-	<li><span class="VariableType">{{type}}</span> <span class="VariableName">{{name}}</span>: <span class="VariableValue">{{value}}</span></li>
+<script id="variable-list-item-template" type="text/x-handlebars-template">
+	<li class="variable-list-item">
+		<a class="ClickEdit VariableType">{{type}}</a> 
+		<a class="ClickEdit VariableName">{{name}}</a> = 
+		<a class="ClickEdit VariableValue">{{value}}</a>;
+		<a class="remove-list-item">Remove</a>
+	</li>
 </script>
 
 <script id="includeForm-template" type="text/x-handlebars-template">
-	<div class="includeFormContainer">
+	<div class="IncludeForm">
 		<h3>Include</h3>
 		<input type="text" placeholder="include header" class="includeHeaderText" value="" />
 		<button class="addIncludeButton">Add Includefile</button>
-		<ul>
-		{{each includes}}
+		<ul class="include-list">
+		{{#each includes}}
 			<li class="include-list-item">
-				#include <span class="ClickEdit">{{value}}</span>
+				#include <a class="ClickEdit includeValue" data-type="text">{{value}}</a>
 				<a href="#" class="remove-list-item">Remove</a>
 			</li>
 		{{/each}}
-		</ul>
-	</div>
+		</ul> 
+	</div> 
+</script>
+<script id="include-list-item-template" type="text/x-handlebars-template">
+	<li class="include-list-item">
+		#include <a class="ClickEdit includeValue" data-type="text">{{value}}</a>
+		<a href="#" class="remove-list-item">Remove</a>
+	</li>
 </script>
 
 <script id="interruptForm-template" type="text/x-handlebars-template">
-	<div class="interrupt-container">
+	<div class="InterruptForm">
 		<h3>Interrupts</h3>
 		<input type="text" placeholder="Interrupt constant" class="interruptConstantText" />
 		<button class="addInterruptButton">Add Interrupt</button>
 		<ul class="interrupt-list">
-		{{each interrupts}}
+		{{#each interrupts}}
 			<li class="interrupt-list-item">
-				{{interrupt}}
-				<a href="#" class="clickToHide">v</a> 
-				<div class="hideable">
-					INSTALL(&<span class="ClickEdit">{{object}}</span>, <span class="ClickEdit">{{method}}</span>, <span class="ClickEdit">{{interrupt}}</span>);
-				</div>
+				INSTALL(&<a class="ClickEdit interruptObject">{{object}}</a>, <a class="ClickEdit interruptMethod">{{method}}</a>, <a class="ClickEdit interruptInterrupt">{{interrupt}}</a>);
 			</li>
 		{{/each}}
 		</ul>
 	</div>
+</script>
+<script id="interrupt-list-item-template" type="text/x-handlebars-template">
+	<li class="interrupt-list-item">
+		INSTALL(&<a class="ClickEdit interruptObject">{{object}}</a>, <a class="ClickEdit interruptMethod">{{method}}</a>, <a class="ClickEdit interruptInterrupt">{{interrupt}}</a>);
+	</li>
 </script>
 
 <script id="stateMachineForm-template" type="text/x-handlebars-template">
-	<div>
+	<div class="StateMachineForm">
 		<h3>State Machines</h3>
-		<input type="text" placeholder="Name" />
-		<button>Add StateMachine</button>
-		<ul>
-		{{each stateMachines}}
-			<li>
-				typedef struct {
-				<ul class="stateMachine-variable-list">
-				{{each variables}}
+		<input type="text" placeholder="Name" class="stateMachineName" />
+		<button class="addStateMachineButton">Add StateMachine</button><br>
+		<ul class="state-machine-list">
+		{{#each stateMachines}}
+			<li class="state-machine-list-item">
+				<input type="text" class="VariableType" placeholder="Type" /> 
+				<input type="text" class="VariableName" placeholder="Name" /> 
+				<input type="text" class="VariableValue" placeholder="Value" /> 
+				<button class="addVariableButton">Add Variable</button><br>
+				typedef struct {<br>
+				<ul class="variable-list">
+				{{#each variables}}
 					<li class="variable-list-item">
-						<span class="ClickEdit">{{type}}</span> 
-						<span class="ClickEdit">{{name}}</span> = 
-						<span class="ClickEdit">{{value}}</span>;
+						<a class="ClickEdit variableType">{{type}}</a> 
+						<a class="ClickEdit variableName">{{name}}</a> = 
+						<a class="ClickEdit variableValue">{{value}}</a>;
 					</li>
 				{{/each}}
 				</ul>
-				} <span class="ClickEdit">{{name}}</span>;
+				} <a class="ClickEdit stateMachineName">{{name}}</a>;
 			</li>
 		{{/each}}
 		</ul>
 	</div>
 </script>
+<script id="state-machine-list-item-template" type="text/x-handlebars-template">
+	<li class="state-machine-list-item">
+		<input type="text" class="VariableType" placeholder="Type" /> 
+		<input type="text" class="VariableName" placeholder="Name" /> 
+		<input type="text" class="VariableValue" placeholder="Value" /> 
+		<button class="addVariableButton">Add Variable</button><br>
+		typedef struct {
+		<ul class="variable-list">
+		{{#each variables}}
+			<li class="variable-list-item">
+				<a class="ClickEdit variableType">{{type}}</a> 
+				<a class="ClickEdit variableName">{{name}}</a> = 
+				<a class="ClickEdit variableValue">{{value}}</a>;
+			</li>
+		{{/each}}
+		</ul>
+		} <a class="ClickEdit stateMachineName">{{name}}</a>;
+	</li>
+</script>
+
 
 <script id="globalVariableForm-template" type="text/x-handlebars-template">
-	<div>
+	<div class="GlobalVariableForm">
 		<h3>Global Variables</h3>
-		<input type="text" placeholder="Type" />
-		<input type="text" placeholder="Name" />
-		<input type="text" placeholder="Value" />
+		<input type="text" class="globalVariableType" placeholder="Type" />
+		<input type="text" class="globalVariableName" placeholder="Name" />
+		<input type="text" class="globalVariableValue" placeholder="Value" />
 		<button class="addGlobalVariableButton">Add Global Variable</button>
 		<ul class="global-variable-list">
-		{{each variables}}
+		{{#each variables}}
 			<li class="variable-list-item">
-				<span class="ClickEdit">{{type}}</span> 
-				<span class="ClickEdit">{{name}}</span> = 
-				<span class="ClickEdit">{{value}}</span>;
+				<a class="ClickEdit variableType">{{type}}</a> 
+				<a class="ClickEdit variableName">{{name}}</a> = 
+				<a class="ClickEdit variableValue">{{value}}</a>;
 			</li>
 		{{/each}}
 		</ul>
@@ -265,22 +248,22 @@
 </script>
 
 <script id="methodsForm-template" type="text/x-handlebars-template">
-	<div>
+	<div class="MethodForm">
 		<h3>Method</h3>
-		<input type="text" placeholder="Type (eg, void)" />
-		<input type="text" placeholder="Name (eg, receive)" />
-		<input type="text" placeholder="Object (eg, app)" /> 
-		<input type="text" placeholder="Variable (eg, int unused)" />
+		<input type="text" class="methodType" placeholder="Type (eg, void)" />
+		<input type="text" class="methodName" placeholder="Name (eg, receive)" />
+		<input type="text" class="methodObject" placeholder="Object (eg, app)" /> 
+		<input type="text" class="methodInputArgument" placeholder="Input argument (eg, int x)" />
 		<button class="addMethodButton">Add Method</button>
-		<ul>
-		{{each methods}}
+		<ul class="method-list">
+		{{#each methods}}
 			<li class="method-list-item">
-				<span class="ClickEdit">{{type}}</span> 
-				<span class="ClickEdit">{{name}}</span> (
-				<span class="ClickEdit">{{object}}</span> *self,
-				<span class="ClickEdit">{{variable}}</span>) {
+				<a class="ClickEdit methodType" data-type="text">{{type}}</a> 
+				<a class="ClickEdit methodName" data-type="text">{{name}}</a> (
+				<a class="ClickEdit methodObject" data-type="text">{{object}}</a> *self,
+				<a class="ClickEdit methodInputArgument" data-type="text">{{variable}}</a>) {
 				<a href="#" class="remove-list-item">Remove</a><br>
-				<textarea>{{body}}</textarea><br>
+				<a class="ClickEdit methodBody" data-type="textarea">{{body}}</a><br>
 				}
 			</li>
 		{{/each}}
@@ -288,150 +271,39 @@
 	</div>
 </script>
 
+<script id="method-list-item-template" type="text/x-handlebars-template">
+	<li class="method-list-item">
+		<a class="ClickEdit methodType" data-type="text">{{type}}</a> 
+		<a class="ClickEdit methodName" data-type="text">{{name}}</a> (
+		<a class="ClickEdit methodObject" data-type="text">{{object}}</a> *self,
+		<a class="ClickEdit methodInputArgument" data-type="text">{{variable}}</a>) {
+		<a href="#" class="remove-list-item">Remove</a><br>
+		<a class="ClickEdit methodBody" data-type="textarea">{{body}}</a><br>
+		}
+	</li>
+</script>
+
 <script id="timeScopeForm-template" type="text/x-handlebars-template">
-	<div>
+	<div class="TimeScopeForm">
 		<h4>TimeScope</h4>
-		Minimum Delay: <span class="ClickEdit">{{minDelay}}</span> us.<br>
-		Maximum Delay: <span class="ClickEdit">{{maxDelay}}</span>
-		Deadline: <span class="ClickEdit">{{deadline}}</span>
-		Maximum elapsed time: <span class="ClickEdit">{{maximumElapsedTime}}</span>
+		Minimum Delay: <a class="ClickEdit">{{minDelay}}</a> us.<br>
+		Maximum Delay: <a class="ClickEdit">{{maxDelay}}</a>
+		Deadline: <a class="ClickEdit">{{deadline}}</a>
+		Maximum elapsed time: <a class="ClickEdit">{{maximumElapsedTime}}</a>
 	</div>
 </script>
 
-<script type="text/x-handlebars-template">
-	<div>
+<script id="kickoffForm-template" type="text/x-handlebars-template">
+	<div class="KickoffForm">
 		<h3>KickOff</h3>
-		TINYTIMBER(&<span class="ClickEdit">{{mainobj}}, kickoff, <span class="ClickEdit">{{mainarg}});<br>
+		TINYTIMBER(&<a class="kickoffMainobj ClickEdit">{{mainobj}}</a>, kickoff, <a class="kickoffMainarg ClickEdit">{{mainarg}}</a>);<br>
 
-		void kickoff(<span class="ClickEdit">{{object}}</span> *self, <span class="ClickEdit">{{variable}}</span>) {<br>
-			<textarea>{{body}}</textarea><br>
-		}<br/>
-</script>
-
-<script id="newStateMachine-template" type="text/x-handlebars-template">
-	<div id="NewStateMachine">
-		Variables
-		<button class="addVariableButton">Add Variable</button>
-		<ul>
-			<li><span class="VariableType">Object*</span> <span class="VariableName">super</span>: <span class="VariableValue">initObject()</span></li>
-			<li><span class="VariableType">int</span> <span class="VariableName">count</span>: <span class="VariableValue">100</span></li>
-			<li><span class="VariableType">int[16]</span> <span class="VariableName">myBuffer</span>: <span class="VariableValue">{}</span></li>
-		</ul>
-		Methods (States)
-		<button>Add Method</button>
-		<ul>
-		{{#each methods}}
-			<li class="method">
-				Name: <input type="text" value="{{name}}" /><br>
-				CalledBy: <input type="text" value="{{caller}}" /><br>
-				StartTime:<input type="text" value="{{timeScope.startTime}}" /><br>
-				Duration:<input type="text" value="{{timeScope.duration}}" /><br>
-				EndTime: <input type="text" value="{{timeScope.endTime}}" /><br>
-				<br>
-			</li>
-		{{/each}}
-		</ul>
-	</div>
+		void kickoff(<a class="kickoffObject ClickEdit">{{object}}</a> *self, <a class="kickoffVariable ClickEdit">{{variable}}</a>) {<br>
+			<a class="ClickEdit kickoffBody" data-type="textarea">{{body}}</a><br>
+		}<br>
 </script>
 
 <script type="text/javascript">
-	
-	/*var application = {
-	   includes: [ 
-	      '"TinyTimber.h"',
-	      '"sciTinyTimber.h"',
-	      '"canTinyTimber.h"',
-	      ̈́̈́'<machine/hcs12/pim.h>'],
-
-	   stateMachines: {
-	      name: 'App',
-	      variables: [
-	         { type: 'Object', name: 'super', 'initObject()'},
-	         { type: 'int', name: 'count', '0'},
-	         { type: 'char', name: 'c', 'X'},
-	      ]
-	   }, 
-
-	   variables: [
-	      { type: 'PPIM', name: 'p', value: '0x240'},
-	      { type: 'int', name: 'index', value: '0'},
-	      { type: 'int', name: 'mySum', value: '0'},
-	      { type: 'char', name: 'input[32]', value: '""'},
-	      { type: 'char', name: 'output[64]', value: '""'},
-	      { type: 'int', name: 'min_index', value: '-10'},
-	      { type: 'int', name: 'max_index', value: '14'},
-	      { type: 'int', name: 'brotherJohn[32]', value: '{ 0,2,4,0,0,2,4,0,4,5,7,4,5,7,7,9,7,5,4,0,7,9,7,5,4,0,0,-5,0,0,-5,0 }'},
-	      { type: 'int', name: 'periods[25]', value: '{ 2024,1911,1803,1702,1607,1516,1431,1351,1275,1203,1136,1072,1012,955,901,851,803,758,715,675,637,601,568,536,506  }'},
-	      { type: 'App', name: 'app', value: '{ initObject(), 0, \'X\'}',
-	      { type: 'Serial', name: 'sci0', value: 'initSerial(SCI_PRO0, &app, reader)'},
-	      { type: 'Can', name: 'can0', value: 'initCan(CAN0BASE, &app, receiver)'},
-	      { type: 'int', name: 'blr', value: '100'},
-	   ], 
-
-	   methods = [
-	      { returntype: 'void', name: 'loadLoop', object: 'App', variable: 'int x', body: 'for(x = 0; x < blr; x++) {}
-	         AFTER(USEC(1300),self, loadLoop,0);', timeScope: {} },
-	      { returntype: 'void', name: 'tone', object: 'App', variable: 'int x', body: 'if (x == 0) { \nx = 1;\np->ptp = 1;\n} else {\nx = 0;p->ptp = 0;\n}\nAFTER(USEC(500), self, tone, x);', timeScope: {} },
-	      { returntype: 'void', name: 'receiver', object: 'App', variable: 'int unused', body: 'CANMsg msg;
-	         CAN_RECEIVE(&can0, &msg);
-	         SCI_WRITE(&sci0, "Can msg received: ");
-	         SCI_WRITE(&sci0, msg.buff);', timeScope: {} },
-	      { returntype: 'void', name: 'reader', object: 'App', variable: 'int unused', body: 'SCI_WRITE(&sci0, "Rcv: \'");
-	         SCI_WRITECHAR(&sci0, c);
-	         SCI_WRITE(&sci0, "\'\n");
-	         parseInt(c);', timeScope: {} },
-	   ],
-
-	   functions: [
-	      { type: 'void', name: 'printPeriod', arguments: 'int key',  timeScope: {}, body: 'int i = 0;
-	      if(key > 5) key = 5;
-	      if(key < -5) key = -5;
-	      for(i;i<32; i++) {
-	         int y = brotherJohn[i] + 10 + key;
-	         sprintf(output, "%d\n", periods[y]);
-	         SCI_WRITE(&sci0, output);
-	      }'},
-	      {type:'void', name:'parseInt', arguments: 'int d', 
-	         timeScope: {}
-	         body: 'input[index] = '\0';
-	         mySum = atoi(input);
-	         blr = mySum;
-	         input[index] = '\n';
-	         SCI_WRITE(&sci0, "The entered number is ");
-	         SCI_WRITE(&sci0, input);
-	         printPeriod(mySum);
-	         index = 0;
-	         return;'}
-	   ],
-
-	   interrupts: [
-	      { object: 'sci0', method: 'sci_interrupt', interrupt: 'SCI_IRQ0' },
-	      { object: 'can0', method: 'can_interrupt', interrupt: 'CAN_IRQ0' },
-	   ],
-	   kickoff: {
-	      object: 'App *self', variable: 'int arg',
-	      mainobj: 'app', mainarg: '0',
-	      body: '
-	         CANMsg msg;
-	         SCI_INIT(&sci0);
-	         CAN_INIT(&can0);
-	         SCI_WRITE(&sci0, "Hello, hello...\n");
-	         msg.msgId = 1;
-	         msg.nodeId = 1;
-	         msg.length = 6;
-	         msg.buff[0] = 'H';
-	         msg.buff[1] = 'e';
-	         msg.buff[2] = 'l';
-	         msg.buff[3] = 'l';
-	         msg.buff[4] = 'o';
-	         msg.buff[5] = 0;
-	         CAN_SEND(&can0, &msg);
-	         p->ddrp = 0x1;
-	         ASYNC(self,tone, 0);
-	         ASYNC(self,loadLoop, 0);
-	      ',
-	   },
-	};*/
 
 	var defaultStateMachine = {
 		name: 'New StateMachine',
@@ -461,7 +333,12 @@
 			}, // calculations
 		]
 	};
-
+	var functionTestObj = {
+		name: 'tst',
+		startTime: '0',
+		duration: '1',
+		endTime: '0',
+	}
 	// ADD HANDLEBAR TEMPLATE FUNCTIONS
 	// -----------------------------------------------------
 	function addNewFunction(selector, func) {
@@ -547,8 +424,8 @@
 	}
 
 	function addInterrupt() {
-		var source = $('interruptListItem-template').html();
-		var template = Handlebars.complile(source);
+		var source = $('#interruptListItem-template').html();
+		var template = Handlebars.compile(source);
 		var interruptName = $('#ExternalInterruptName').text();
 		var context = { name: interruptName };
 		var html = template(context);
@@ -556,23 +433,256 @@
 		return false;
 	};
 	// -------------------------------------------------------------- 
-	// MAIN
-	$(document).ready(function() {
-		$('#addInterruptButton').click(addInterrupt);
-		
-		enableHideButtons();
-		$("#addTaskButton").click(function() {
-			createTask('#TaskList', {});
-			enableHideButtons();
-			d3.selectAll("li.method")
-	    	.data([300,100,400])
-	    	.style("height", function(d) { return d + "px"; });
-		});
-		
-	});
+
+	// Create and add forms
+	var templates = {
+		includeForm: '#includeForm-template',
+		stateMachineForm: '#stateMachineForm-template',
+		functionForm: '#function-template',
+		globalVariableForm: '#globalVariableForm-template',
+		includeForm: '#includeForm-template',
+		interruptForm: '#interruptForm-template',
+		methodForm: '#methodsForm-template',
+		variableForm: '#variableForm-template',
+		kickoffForm: '#kickoffForm-template'
+	};
+
+	var compiledTemplates = {};
+
+	function compilez() {
+		var source = $(templates.includeForm).html();
+		compiledTemplates.includeForm = Handlebars.compile(source);
+	}
+
+	function createTemplate(selector, context) {
+		var source = $(selector).html();
+		var template = Handlebars.compile(source);
+		var html = template(context);
+		return html;
+	}
+
+	function createAndAddFunctionForm(functions_) {
+		var context = {functions:functions_};
+		var html = createTemplate(templates.functionForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddGlobalVariableForm(globalVariables_) {
+		var context = {variables : globalVariables_ };
+		var html = createTemplate(templates.globalVariableForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddIncludeForm(includes_) {
+		var context = {includes: includes_};
+		var html = createTemplate(templates.includeForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddInterruptForm(interrupts_) {
+		var context = {interrupts: interrupts_};
+		var html = createTemplate(templates.interruptForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddMethodForm(methods_) {
+		var context = {methods:methods_ };
+		var html = createTemplate(templates.methodForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddStateMachineForm(stateMachines_) {
+		var context = {stateMachines: stateMachines_};
+		var html = createTemplate(templates.stateMachineForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddVariableForm(variables_) {
+		var context = {variables: variables_};
+		var html = createTemplate(templates.variableForm, context);
+		$('#forms').append(html);
+	}
+	function createAndAddKickoffForm(kickoff) {
+		var context = kickoff; /*{
+			mainobj: 'app', mainarg: '0', object: 'App', variable: 'int unused',
+			body: '// Kickoff body goes here...'
+		};*/
+		var html = createTemplate(templates.kickoffForm, context);
+		$('#forms').append(html);
+	}
+
 
 	
 
+	// BUTTON CLICKS -----------------
+	function addFunctionClick() { 
+		console.log('add function'); 
+		function createFunctionListItem(type_, name_, args_) {
+			var source = $('#function-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { type: type_, name: name_, args: args_, body: '// Enter code here..' }; 
+			return template(context);
+
+		}
+		var type = $(this).parent().children('input.functionType').first().val();
+		var name = $(this).parent().children('input.functionName').first().val();
+		var args = $(this).parent().children('input.functionArgs').first().val();
+		var functionListItem = createFunctionListItem(type, name, args);
+		$(this).parent().children('ul.function-list').append(functionListItem);
+		addAddElementClickCallbacks();
+	}
+	
+	function addIncludeClick(e) { 
+		function createIncludeListItem(includeFileName) {
+			var source = $('#include-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { value: includeFileName };
+			return template(context);
+		}
+		var inputField = $(this).parent().children('.includeHeaderText').first();
+		var newIncludeName = inputField.val();
+		if(newIncludeName === '') {
+			// Empty. 
+			return false;
+		}
+		inputField.val('');
+		var includeListItem = createIncludeListItem(newIncludeName);
+		var v = $(this).parent().children('.include-list').append(includeListItem);
+		addAddElementClickCallbacks();
+	}
+	function addInterruptClick() { 
+		function createInterruptListItem(interruptConstant) {
+			var source = $('#interrupt-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { method: 'object_method', object: 'object_instance', interrupt: interruptConstant}
+			return template(context);
+		}
+		var inputField = $(this).parent().children('.interruptConstantText').first();
+		var newInterruptConstant = inputField.val();
+		if(newInterruptConstant === '') {
+			return;
+		}
+		inputField.val('');
+		var interruptListItem = createInterruptListItem(newInterruptConstant);
+		var v = $(this).parent().children('.interrupt-list').append(interruptListItem);
+		addAddElementClickCallbacks();
+	}
+
+	function addMethodClick() { 
+		function createMethodListItem(type_, name_, object_, variable_, body_) {
+			var source = $('#method-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { type: type_, name: name_, object: object_, variable: variable_, body: body_ };
+			return template(context);
+		}
+		var type = $(this).parent().children('input.methodType').first().val();
+		var name = $(this).parent().children('input.methodName').first().val();
+		var object = $(this).parent().children('input.methodObject').first().val();
+		var inputArgument = $(this).parent().children('input.methodInputArgument').first().val();
+		var body = '// code here';
+		console.log('add method'); 
+		var methodListItem = createMethodListItem(type, name, object, inputArgument, body);
+		$(this).parent().children('ul.method-list').append(methodListItem);
+		addAddElementClickCallbacks();
+	}	
+
+	function addStateMachineClick() { 
+		function createStateMachineListItem(name_, variables_) {
+			var source = $('#state-machine-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { name: name_, variables: variables_};
+			return template(context);
+		}
+		var name = $(this).parent().children('input.stateMachineName').first().val();
+		var stateMachineListItem = createStateMachineListItem(name, [ { name: '*super', type: 'Object', value:'initObject()'}]);
+		console.log(name, stateMachineListItem);
+		$(this).parent().children('.state-machine-list').append(stateMachineListItem);
+		addAddElementClickCallbacks();
+	}
+
+	function addVariableClick() { 
+		function createVariableListItem(type_, name_, value_) {
+			var source = $('#variable-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { type: type_, name: name_, value: value_ };
+			return template(context);
+		}
+		var inputType = $(this).parent().children('input.VariableType').first(), 
+			inputName = $(this).parent().children('input.VariableName').first(), 
+			inputValue = $(this).parent().children('input.VariableValue').first();
+		var type = inputType.val() || 'int', 
+			name = inputName.val() || 'newVariable',
+			value = inputValue.val() || '0';
+		var newVariableListItem = createVariableListItem(type, name, value);
+		$(this).parent().children('ul.variable-list').append(newVariableListItem);
+		addAddElementClickCallbacks();
+	}
+
+	function addGlobalVariableClick() { 
+		function createGlobalVariableListItem(type_, name_, value_) {
+			var source = $('#variable-list-item-template').html();
+			var template = Handlebars.compile(source);
+			var context = { type: type_, name: name_, value: value_ };
+			return template(context);
+		}
+		var type = $(this).parent().children('input.globalVariableType').first().val();
+		var name = $(this).parent().children('input.globalVariableName').first().val();
+		var value = $(this).parent().children('input.globalVariableValue').first().val();
+		var globalVariableListItem = createGlobalVariableListItem(type, name, value);
+		$(this).parent().children('ul.global-variable-list').append(globalVariableListItem);
+		addAddElementClickCallbacks();
+	}
+
+	function removeListItemClick() {
+		$(this).parent().remove();
+	}
+
+	function addAddElementClickCallbacks() {
+		$('button.addMethodButton').on('click', addMethodClick);
+		$('button.addInterruptButton').on('click', addInterruptClick);
+		$('button.addStateMachineButton').on('click', addStateMachineClick);
+		$('button.addFunctionButton').on('click', addFunctionClick);
+		$('button.addIncludeButton').on('click', addIncludeClick);
+		$('button.addVariableButton').on('click', addVariableClick);
+		$('button.addGlobalVariableButton').on('click', addGlobalVariableClick);
+		$('.ClickEdit').editable();
+		$('.remove-list-item').on('click', removeListItemClick);
+	}
+
+	// MAIN
+	$(document).ready(function() {
+		/*$.fn.editable.defaults.mode = 'inline';	*/
+		$('#addInterruptButton').click(addInterrupt);
+		
+
+		enableHideButtons();
+		/*$("#addTaskButton").click(function() {
+			createTask('#TaskList', {});
+			enableHideButtons();
+		});*/
+		createAndAddIncludeForm(application.includes);
+		createAndAddStateMachineForm(application.stateMachines);
+		createAndAddGlobalVariableForm(application.variables);
+		createAndAddMethodForm(application.methods);
+		createAndAddFunctionForm(application.functions);
+		createAndAddInterruptForm(application.interrupts);
+		createAndAddKickoffForm(application.kickoff);
+		
+		//createAndAddVariableForm();
+
+		/*$('.ClickEdit').on('click', function(e) {
+			var t = $(this);
+			if(t.text().indexOf('<input') == -1) {
+				var v = t.text();
+				var inputText = $('<input class="quickeditinput" type="text"></input>');
+				inputText.val(v);
+				t.html(inputText);
+			}
+		});
+		$('.quickeditinput').on('keypress', function(e) {
+			if(e.char === 'enter') {
+				var v = $(this).val();
+				$(this).parent().empty().text(v);
+			}
+		});*/
+		addAddElementClickCallbacks();
+	});
+
+	
 	
 </script>
 </body>
